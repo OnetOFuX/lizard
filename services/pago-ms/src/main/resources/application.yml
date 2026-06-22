@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: pago-ms
+  profiles:
+    active: dev
+
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:18888}"
+
+app:
+  kafka:
+    topic:
+      ordenes: lizard.orden.eventos
+      pagos: lizard.pago.eventos
+    group-id:
+      pagos: pago-ms-group
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO

@@ -1,0 +1,17 @@
+# Lizard Store — stack completo (producción / demo)
+#
+# Uso:
+#   docker network create lizard-prod-net   # una sola vez
+#   docker compose --profile infra up -d
+#   docker compose --profile kafka up -d
+#   docker compose --profile obs up -d
+#
+# Todo junto:
+#   docker compose --profile full up -d
+
+name: lizard-store
+
+include:
+  - path: infra/compose.yml
+  - path: kafka/compose.yml
+  - path: obs/compose.yml

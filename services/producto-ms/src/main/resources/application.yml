@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: producto-ms
+  profiles:
+    active: dev
+
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:18888}"
+
+app:
+  kafka:
+    topic:
+      productos: lizard.producto.eventos
+      ordenes: lizard.orden.eventos
+    group-id:
+      ordenes-stock: producto-ms-ordenes-stock-group
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO

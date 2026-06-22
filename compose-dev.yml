@@ -1,0 +1,13 @@
+# Lizard Store — entorno de desarrollo (Kafka + observabilidad)
+#
+# Uso:
+#   docker network create lizard-dev-net   # una sola vez
+#   docker compose -f compose-dev.yml up -d
+#
+# Bases PostgreSQL dev: levantar compose-dev.yml en cada services/*-ms/
+
+name: lizard-store-dev
+
+include:
+  - path: kafka/compose-dev.yml
+  - path: obs/compose-dev.yml

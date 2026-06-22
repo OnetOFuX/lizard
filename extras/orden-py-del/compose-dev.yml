@@ -1,0 +1,16 @@
+name: orden-py-dev
+
+services:
+  orden-py:
+    build: .
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    command: sleep infinity
+    networks:
+      - kafka-ms-dev-net
+
+networks:
+  kafka-ms-dev-net:
+    external: true
+    name: kafka-ms-dev-net

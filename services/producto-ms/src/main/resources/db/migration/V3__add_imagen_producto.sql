@@ -1,0 +1,3 @@
+ALTER TABLE productos
+    ADD COLUMN IF NOT EXISTS imagen BYTEA,
+    ADD COLUMN IF NOT EXISTS imagen_mime_type VARCHAR(50);

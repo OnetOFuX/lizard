@@ -1,0 +1,185 @@
+<div class="ordenes-page">
+  <div class="container">
+    <div class="page-header animate-fade">
+      <div>
+        <h1>Mis ordenes</h1>
+        <p class="text-muted">Historial de todas tus compras</p>
+      </div>
+      <button class="btn btn-outline btn-sm" type="button" (click)="cargar()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10" />
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+        </svg>
+        Actualizar
+      </button>
+    </div>
+
+    @if (error()) {
+    <div class="alert alert-error mt-2">{{ error() }}</div>
+    }
+
+    @if (info()) {
+    <div class="alert alert-info mt-2">{{ info() }}</div>
+    }
+
+    @if (loading()) {
+    <div class="loading-state mt-3">
+      @for (i of [1,2,3]; track i) {
+      <div class="skeleton" style="height: 72px; border-radius: 12px;"></div>
+      }
+    </div>
+    } @else if (ordenes().length === 0) {
+    <div class="empty-state mt-4">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+      </svg>
+      <h3>Sin ordenes</h3>
+      <p class="text-muted">Aun no has realizado ninguna compra</p>
+    </div>
+    } @else {
+    <div class="ordenes-list mt-3 animate-slide-up">
+      @for (orden of ordenes(); track orden.id) {
+      <div class="orden-card card">
+        <div class="orden-header">
+          <div class="orden-id">
+            <span class="label">Orden</span>
+            <strong>#{{ orden.id }}</strong>
+          </div>
+          <span class="badge" [class]="claseBadge(orden.estado)">{{ formatearEstado(orden.estado) }}</span>
+        </div>
+        <div class="orden-details">
+          @if (orden.items && orden.items.length > 0) {
+          <div class="orden-items-summary">
+            <span class="label">Productos</span>
+            <div class="items-list">
+              @for (item of orden.items; track $index) {
+              <span class="item-chip">{{ item.nombreProducto }} × {{ item.cantidad }}</span>
+              }
+            </div>
+          </div>
+          }
+          @if (orden.carritoId) {
+          <div class="detail">
+            <span class="label">Carrito</span>
+            <span>#{{ orden.carritoId }}</span>
+          </div>
+          }
+          <div class="detail detail-total">
+            <span class="label">Total</span>
+            <strong class="total">{{ formatearPrecio(orden.total) }}</strong>
+          </div>
+          @if (pendientePago(orden.estado)) {
+          <button
+            class="btn btn-coral btn-sm orden-pay-btn"
+            type="button"
+            [disabled]="pagandoOrdenId() === orden.id"
+            (click)="pagar(orden)"
+          >
+            @if (pagandoOrdenId() === orden.id) {
+              <span class="spinner-sm"></span>
+              Preparando pago...
+            } @else {
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+              </svg>
+              Pagar con Mercado Pago
+            }
+          </button>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+
+  @if (modalPagoAbierto()) {
+  <div class="mp-modal-overlay" (click)="cerrarModalPago()">
+    <div class="mp-modal card" (click)="$event.stopPropagation()">
+      <div class="mp-modal-header">
+        <div class="mp-modal-title">
+          <div class="mp-logo">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+              <line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+          </div>
+          <div>
+            <h3>Completar pago</h3>
+            @if (ordenPagoActiva(); as orden) {
+            <p class="text-muted">Orden #{{ orden.id }} · {{ formatearPrecio(orden.total) }}</p>
+            }
+          </div>
+        </div>
+        <button class="mp-modal-close" type="button" aria-label="Cerrar" (click)="cerrarModalPago()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      @if (esSimulacion()) {
+      <div class="mp-simulation-mode">
+        <div class="mp-sim-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Modo Simulacion
+        </div>
+        <p class="mp-sim-desc">No se realizara un cobro real. Este es un entorno de pruebas.</p>
+        <div class="mp-sim-details">
+          <div class="mp-sim-row">
+            <span>Monto</span>
+            @if (ordenPagoActiva(); as orden) {
+            <strong>{{ formatearPrecio(orden.total) }}</strong>
+            }
+          </div>
+          <div class="mp-sim-row">
+            <span>Estado</span>
+            <strong>Aprobado (simulado)</strong>
+          </div>
+        </div>
+        <button
+          class="btn btn-coral btn-lg mp-sim-btn"
+          type="button"
+          [disabled]="cargandoWallet()"
+          (click)="pagarSimulado()"
+        >
+          @if (cargandoWallet()) {
+            <span class="spinner-sm"></span>
+            Procesando...
+          } @else {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Confirmar pago simulado
+          }
+        </button>
+      </div>
+      } @else {
+
+      @if (cargandoWallet()) {
+      <div class="mp-modal-loading">
+        <div class="mp-loading-animation">
+          <div class="mp-loading-dot"></div>
+          <div class="mp-loading-dot"></div>
+          <div class="mp-loading-dot"></div>
+        </div>
+        <p class="text-muted">Cargando checkout de Mercado Pago...</p>
+      </div>
+      }
+
+      <div [id]="walletContainerId" class="mp-wallet-container" [class.is-loading]="cargandoWallet()"></div>
+
+      <p class="mp-modal-note text-muted">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Pago seguro procesado por Mercado Pago. Acepta tarjetas, Yape, Plin o tu cuenta MP.
+      </p>
+      }
+    </div>
+  </div>
+  }
+</div>

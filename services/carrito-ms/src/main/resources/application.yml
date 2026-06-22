@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: carrito-ms
+  profiles:
+    active: dev
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:18888}"
+
+app:
+  kafka:
+    topic:
+      carrito: lizard.carrito.eventos
+      checkout: lizard.carrito.checkout
+      productos: lizard.producto.eventos
+    group-id:
+      carrito-productos: carrito-ms-productos-group
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
+    com.lizardstore.carrito: DEBUG

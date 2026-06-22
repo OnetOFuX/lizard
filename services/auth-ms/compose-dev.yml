@@ -1,0 +1,18 @@
+name: ecom-auth-dev
+
+services:
+  postgres-auth-dev:
+    image: postgres:16-alpine
+    container_name: lizard-postgres-auth-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lizard_auth_db
+      POSTGRES_USER: lizard
+      POSTGRES_PASSWORD: lizard
+    ports:
+      - "15431:5432"
+    volumes:
+      - lizard_auth_dev_data:/var/lib/postgresql/data
+
+volumes:
+  lizard_auth_dev_data:

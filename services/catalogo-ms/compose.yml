@@ -1,0 +1,53 @@
+name: lizard-catalogo-prod
+
+services:
+  postgres-catalogo:
+    image: postgres:16-alpine
+    container_name: lizard-postgres-catalogo
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    volumes:
+      - lizard_catalogo_data:/var/lib/postgresql/data
+    ports:
+      - "25432:5432"
+    networks:
+      - lizard-catalogo-int
+
+  catalogo-ms:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres-catalogo:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      CONFIG_SERVER_URL: ${CONFIG_SERVER_URL}
+      DB_HOST: lizard-postgres-catalogo
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - lizard-catalogo-int
+      - lizard-prod-net
+
+volumes:
+  lizard_catalogo_data:
+
+networks:
+  lizard-prod-net:
+    external: true
+    name: lizard-prod-net
+  lizard-catalogo-int:
+    name: lizard-catalogo-int

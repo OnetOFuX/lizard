@@ -1,0 +1,59 @@
+site_name: ecom - DISTribuidas 2026
+site_description: Guia del curso de sistemas distribuidos con Spring Cloud
+docs_dir: docs
+
+nav:
+  - Inicio: index.md
+  - Silabo: silabo.md
+  - Guia del curso: guia-curso.md
+  - Unidad 1:
+      - S1 - Servicio base: sesiones/s01-arquitectura-base.md
+      - S2 - Configuracion y ambientes: sesiones/s02-configuracion-centralizada.md
+      - S3 - Registro y descubrimiento: sesiones/s03-eureka-escalado.md
+      - S4 - Acceso unico y trafico: sesiones/s04-gateway-load-balancer.md
+      - S5 - Evaluacion U1: sesiones/s05-evaluacion-u1.md
+  - Unidad 2:
+      - S6 - Comunicacion sincronica resiliente: sesiones/s06-feign-circuit-breaker.md
+      - S7 - Seguridad distribuida: sesiones/s07-seguridad-jwt.md
+      - S8 - Mensajeria asincrona: sesiones/s08-angular-cors-jwt.md
+      - S9 - Consistencia distribuida: sesiones/s09-kafka-eventos.md
+      - S10 - Observabilidad y diagnostico: sesiones/s10-observabilidad.md
+      - S11 - Integracion frontend: sesiones/s11-integracion-fullstack.md
+      - S12 - Evaluacion U2: sesiones/s12-evaluacion-u2.md
+  - Unidad 3:
+      - S13 - Validacion end-to-end: sesiones/s13-validacion-integral.md
+      - S14 - Revision tecnica: sesiones/s14-cierre-tecnico.md
+      - S15 - Defensa tecnica: sesiones/s15-defensa-tecnica.md
+      - S16 - Evaluacion final: sesiones/s16-evaluacion-final.md
+  - Referencias:
+      - Puertos y accesos: referencias/puertos.md
+      - PowerShell: referencias/comandos-powershell.md
+      - Bash macOS/Linux: referencias/comandos-bash.md
+      - Troubleshooting: referencias/troubleshooting.md
+      - Rubrica: referencias/rubrica.md
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - content.code.copy
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+
+plugins:
+  - search
+
+extra_javascript:
+  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
+  - javascripts/mermaid.js

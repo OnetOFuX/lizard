@@ -1,0 +1,82 @@
+server:
+  port: 29092
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:41092
+  datasource:
+    url: jdbc:postgresql://localhost:15433/lizard_producto_db
+    username: lizard
+    password: lizard
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: false
+    instance-id: ${spring.application.name}:${local.server.port:${random.value}}
+    metadata-map:
+      instance-port: ${local.server.port:${server.port}}
+  client:
+    service-url:
+      defaultZone: http://localhost:18761/eureka
+      
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.lizardstore.producto: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,circuitbreakers,circuitbreakerevents
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      catalogo:
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 2
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
+jwt:
+  secret: 1s3alJJATsWK91vf5zrODYlQa+LauM/9udaLZlQhHlpu46g/KzmSS5c3CGy6xF9kzAqBhvjmKBuZO/pSL7tfOg==
+  issuer: lizardstore-auth
+
+

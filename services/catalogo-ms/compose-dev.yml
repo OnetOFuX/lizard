@@ -1,0 +1,18 @@
+name: lizard-catalogo-dev
+
+services:
+  postgres-catalogo-dev:
+    image: postgres:16-alpine
+    container_name: lizard-postgres-catalogo-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lizard_catalogo_db
+      POSTGRES_USER: lizard
+      POSTGRES_PASSWORD: lizard
+    ports:
+      - "15432:5432"
+    volumes:
+      - lizard_catalogo_dev_data:/var/lib/postgresql/data
+
+volumes:
+  lizard_catalogo_dev_data:

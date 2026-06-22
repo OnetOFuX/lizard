@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: orden-ms
+  profiles:
+    active: dev
+
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:18888}"
+
+app:
+  kafka:
+    topic:
+      ordenes: lizard.orden.eventos
+      checkout: lizard.carrito.checkout
+      pagos: lizard.pago.eventos
+    group-id:
+      ordenes: orden-ms-group
+      ordenes-pagos: orden-ms-pagos-group
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO

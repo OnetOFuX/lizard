@@ -1,0 +1,4 @@
+ALTER TABLE pagos
+  ADD COLUMN IF NOT EXISTS preferencia_id VARCHAR(255),
+  ADD COLUMN IF NOT EXISTS init_point VARCHAR(1024),
+  ADD COLUMN IF NOT EXISTS mercadopago_payment_id VARCHAR(255);

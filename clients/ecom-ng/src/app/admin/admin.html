@@ -1,0 +1,255 @@
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+      <span>Panel de gestion</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button type="button" class="nav-item" [class.nav-active]="seccionActiva() === 'productos'" (click)="cambiarSeccion('productos')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        Productos
+        <span class="nav-count">{{ productos().length }}</span>
+      </button>
+      <button type="button" class="nav-item" [class.nav-active]="seccionActiva() === 'categorias'" (click)="cambiarSeccion('categorias')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </svg>
+        Categorias
+        <span class="nav-count">{{ categorias().length }}</span>
+      </button>
+      <button type="button" class="nav-item" [class.nav-active]="seccionActiva() === 'ordenes'" (click)="cambiarSeccion('ordenes')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        Ordenes
+        <span class="nav-count">{{ ordenes().length }}</span>
+      </button>
+    </nav>
+  </aside>
+
+  <main class="admin-content">
+    <!-- PRODUCTOS -->
+    @if (seccionActiva() === 'productos') {
+      <section class="admin-section animate-fade">
+        <div class="section-top">
+          <h2>Gestion de Productos</h2>
+          <button class="btn btn-outline btn-sm" type="button" (click)="cargarProductos()">Recargar</button>
+        </div>
+
+        @if (errorProductos()) {
+          <div class="alert alert-error mt-2">{{ errorProductos() }}</div>
+        }
+        @if (exitoProductos()) {
+          <div class="alert alert-success mt-2">{{ exitoProductos() }}</div>
+        }
+
+        <div class="admin-form card mt-3">
+          <div class="card-body">
+            <h4>{{ editandoProductoId ? 'Editar producto' : 'Nuevo producto' }}</h4>
+            <form class="form-grid mt-2" (ngSubmit)="guardarProducto()">
+              <div class="form-group">
+                <label class="form-label">Nombre</label>
+                <input class="form-input" type="text" name="prodNombre" [(ngModel)]="prodNombre" placeholder="Nombre del producto" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">SKU</label>
+                <input class="form-input" type="text" name="prodSku" [(ngModel)]="prodSku" placeholder="SKU-001" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Precio</label>
+                <input class="form-input" type="number" name="prodPrecio" [(ngModel)]="prodPrecio" placeholder="0.00" step="0.01" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Stock</label>
+                <input class="form-input" type="number" name="prodStock" [(ngModel)]="prodStock" placeholder="0" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Categoria</label>
+                <select class="form-select" name="prodIdCategoria" [(ngModel)]="prodIdCategoria" required>
+                  <option [ngValue]="null">Seleccione</option>
+                  @for (cat of categoriasSimples(); track cat.id) {
+                    <option [ngValue]="cat.id">{{ cat.nombre }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group form-full">
+                <label class="form-label">Descripcion</label>
+                <input class="form-input" type="text" name="prodDescripcion" [(ngModel)]="prodDescripcion" placeholder="Descripcion del producto">
+              </div>
+              <div class="form-group form-full">
+                <label class="form-label">Imagen del Producto (Max 10MB)</label>
+                <input class="form-input" type="file" accept="image/png, image/jpeg, image/webp" (change)="onImageSelected($event)">
+                @if (editandoProductoId) {
+                  <small class="text-muted mt-1">Sube una nueva imagen solo si deseas reemplazar la actual.</small>
+                }
+              </div>
+              <div class="form-actions form-full">
+                <button class="btn btn-primary" type="submit">{{ editandoProductoId ? 'Guardar cambios' : 'Crear producto' }}</button>
+                @if (editandoProductoId) {
+                  <button class="btn btn-ghost" type="button" (click)="cancelarEdicionProducto()">Cancelar</button>
+                }
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="table-wrapper mt-3">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>SKU</th>
+                <th>Categoria</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of productos(); track p.id) {
+                <tr>
+                  <td>{{ p.id }}</td>
+                  <td><strong>{{ p.nombre }}</strong></td>
+                  <td><code>{{ p.sku }}</code></td>
+                  <td>{{ nombreCategoriaProducto(p.idCategoria) }}</td>
+                  <td>{{ formatearPrecio(p.precio ?? 0) }}</td>
+                  <td>
+                    <span class="badge" [class]="(p.stock ?? 0) > 0 ? 'badge-success' : 'badge-danger'">
+                      {{ p.stock ?? 0 }}
+                    </span>
+                  </td>
+                  <td class="table-actions">
+                    <button class="btn btn-ghost btn-sm" type="button" (click)="editarProducto(p)">Editar</button>
+                    <button class="btn btn-ghost btn-sm text-danger" type="button" (click)="eliminarProducto(p.id)">Eliminar</button>
+                  </td>
+                </tr>
+              }
+              @if (productos().length === 0 && !loadingProductos()) {
+                <tr><td colspan="7" class="text-center text-muted" style="padding: 2rem;">Sin productos</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- CATEGORIAS -->
+    @if (seccionActiva() === 'categorias') {
+      <section class="admin-section animate-fade">
+        <div class="section-top">
+          <h2>Gestion de Categorias</h2>
+          <button class="btn btn-outline btn-sm" type="button" (click)="cargarCategorias()">Recargar</button>
+        </div>
+
+        @if (errorCategorias()) {
+          <div class="alert alert-error mt-2">{{ errorCategorias() }}</div>
+        }
+        @if (exitoCategorias()) {
+          <div class="alert alert-success mt-2">{{ exitoCategorias() }}</div>
+        }
+
+        <div class="admin-form card mt-3">
+          <div class="card-body">
+            <h4>{{ editandoCategoriaId ? 'Editar categoria' : 'Nueva categoria' }}</h4>
+            <form class="form-grid mt-2" (ngSubmit)="guardarCategoria()">
+              <div class="form-group">
+                <label class="form-label">Nombre</label>
+                <input class="form-input" type="text" name="catNombre" [(ngModel)]="catNombre" placeholder="Nombre" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Descripcion</label>
+                <input class="form-input" type="text" name="catDescripcion" [(ngModel)]="catDescripcion" placeholder="Descripcion" required>
+              </div>
+              <div class="form-actions form-full">
+                <button class="btn btn-primary" type="submit">{{ editandoCategoriaId ? 'Guardar cambios' : 'Crear categoria' }}</button>
+                @if (editandoCategoriaId) {
+                  <button class="btn btn-ghost" type="button" (click)="cancelarEdicionCategoria()">Cancelar</button>
+                }
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="table-wrapper mt-3">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripcion</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of categorias(); track c.id) {
+                <tr>
+                  <td>{{ c.id }}</td>
+                  <td><strong>{{ c.nombre }}</strong></td>
+                  <td>{{ c.descripcion }}</td>
+                  <td class="table-actions">
+                    <button class="btn btn-ghost btn-sm" type="button" (click)="editarCategoria(c)">Editar</button>
+                    <button class="btn btn-ghost btn-sm text-danger" type="button" (click)="eliminarCategoria(c.id)">Eliminar</button>
+                  </td>
+                </tr>
+              }
+              @if (categorias().length === 0 && !loadingCategorias()) {
+                <tr><td colspan="4" class="text-center text-muted" style="padding: 2rem;">Sin categorias</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- ORDENES -->
+    @if (seccionActiva() === 'ordenes') {
+      <section class="admin-section animate-fade">
+        <div class="section-top">
+          <h2>Todas las Ordenes</h2>
+          <button class="btn btn-outline btn-sm" type="button" (click)="cargarOrdenes()">Recargar</button>
+        </div>
+
+        @if (errorOrdenes()) {
+          <div class="alert alert-error mt-2">{{ errorOrdenes() }}</div>
+        }
+
+        <div class="table-wrapper mt-3">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Usuario ID</th>
+                <th>Carrito ID</th>
+                <th>Total</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (o of ordenes(); track o.id) {
+                <tr>
+                  <td><strong>#{{ o.id }}</strong></td>
+                  <td>{{ o.usuarioId }}</td>
+                  <td>{{ o.carritoId ?? '-' }}</td>
+                  <td>{{ formatearPrecio(o.total) }}</td>
+                  <td><span class="badge" [class]="claseBadgeOrden(o.estado)">{{ formatearEstado(o.estado) }}</span></td>
+                </tr>
+              }
+              @if (ordenes().length === 0 && !loadingOrdenes()) {
+                <tr><td colspan="5" class="text-center text-muted" style="padding: 2rem;">Sin ordenes</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </main>
+</div>

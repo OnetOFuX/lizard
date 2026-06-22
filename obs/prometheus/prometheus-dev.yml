@@ -1,0 +1,57 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - localhost:9090
+
+  - job_name: gateway-dev
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - host.docker.internal:18080
+
+  - job_name: auth-ms-dev
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - host.docker.internal:28042
+
+  - job_name: producto-ms-dev
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - host.docker.internal:29092
+
+  - job_name: catalogo-ms-dev
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - host.docker.internal:28082
+
+  - job_name: carrito-ms-dev
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - host.docker.internal:29093
+
+  - job_name: kafka-exporter-dev
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - host.docker.internal:41308
+
+  - job_name: orden-ms-dev
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - host.docker.internal:29051
+
+  - job_name: pago-ms-dev
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - host.docker.internal:29061

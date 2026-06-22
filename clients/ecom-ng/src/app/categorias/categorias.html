@@ -1,0 +1,68 @@
+<div class="categorias-page">
+  <div class="container">
+    <div class="page-header animate-fade">
+      <h1>Categorias</h1>
+      <p class="text-muted">Explora nuestras categorias de productos</p>
+    </div>
+
+    <div class="toolbar animate-slide-up mt-2">
+      <div class="search-box">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          class="form-input search-input"
+          type="text"
+          placeholder="Buscar categorias..."
+          [ngModel]="busqueda()"
+          (ngModelChange)="busqueda.set($event)"
+        >
+      </div>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert-error mt-2">{{ error() }}</div>
+    }
+
+    @if (loading()) {
+      <div class="categorias-grid mt-3">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="skeleton-cat">
+            <div class="skeleton" style="width: 64px; height: 64px; border-radius: 12px;"></div>
+            <div class="skeleton" style="height: 22px; width: 60%;"></div>
+            <div class="skeleton" style="height: 16px; width: 80%;"></div>
+          </div>
+        }
+      </div>
+    } @else if (categoriasFiltradas().length === 0) {
+      <div class="empty-state mt-4">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </svg>
+        <h3>No se encontraron categorias</h3>
+        <p class="text-muted">Intenta con otro termino de busqueda</p>
+      </div>
+    } @else {
+      <div class="categorias-grid mt-3 animate-slide-up">
+        @for (cat of categoriasFiltradas(); track cat.id) {
+          <a [routerLink]="['/productos']" [queryParams]="{categoria: cat.id}" class="categoria-card card">
+            <div class="categoria-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <div class="categoria-info">
+              <h3>{{ cat.nombre }}</h3>
+              <p>{{ cat.descripcion }}</p>
+            </div>
+            <div class="categoria-arrow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</div>

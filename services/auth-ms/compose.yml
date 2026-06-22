@@ -1,0 +1,55 @@
+name: lizard-auth-prod
+
+services:
+  postgres-auth:
+    image: postgres:16-alpine
+    container_name: lizard-postgres-auth
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    volumes:
+      - lizard_auth_data:/var/lib/postgresql/data
+    ports:
+      - "25431:5432"
+    networks:
+      - lizard-auth-int
+
+  auth-ms:
+    build: .
+    container_name: lizard-auth-ms
+    restart: unless-stopped
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      CONFIG_SERVER_URL: ${CONFIG_SERVER_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      DB_HOST: lizard-postgres-auth
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - lizard-auth-int
+      - lizard-prod-net
+
+volumes:
+  lizard_auth_data:
+
+networks:
+  lizard-prod-net:
+    external: true
+    name: lizard-prod-net
+  lizard-auth-int:
+    name: lizard-auth-int
