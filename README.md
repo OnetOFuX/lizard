@@ -175,4 +175,3 @@ En la raíz del proyecto encontrarás el script por lotes automatizado que se en
 ---
 *Lizard Store*
 
-

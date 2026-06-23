@@ -32,6 +32,14 @@
         Ordenes
         <span class="nav-count">{{ ordenes().length }}</span>
       </button>
+      <button type="button" class="nav-item" [class.nav-active]="seccionActiva() === 'usuarios'" (click)="cambiarSeccion('usuarios')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Usuarios
+        <span class="nav-count">{{ usuarios().length }}</span>
+      </button>
     </nav>
   </aside>
 
@@ -245,6 +253,60 @@
               }
               @if (ordenes().length === 0 && !loadingOrdenes()) {
                 <tr><td colspan="5" class="text-center text-muted" style="padding: 2rem;">Sin ordenes</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- USUARIOS -->
+    @if (seccionActiva() === 'usuarios') {
+      <section class="admin-section animate-fade">
+        <div class="section-top">
+          <h2>Usuarios Registrados</h2>
+          <button class="btn btn-outline btn-sm" type="button" (click)="cargarUsuarios()">Recargar</button>
+        </div>
+
+        @if (errorUsuarios()) {
+          <div class="alert alert-error mt-2">{{ errorUsuarios() }}</div>
+        }
+
+        <div class="table-wrapper mt-3">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre de Usuario</th>
+                <th>Roles</th>
+                <th>Fecha de Registro</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of usuarios(); track u.id) {
+                <tr>
+                  <td><strong>#{{ u.id }}</strong></td>
+                  <td><strong>{{ u.username }}</strong></td>
+                  <td>
+                    <div style="display: flex; gap: 0.25rem;">
+                      @for (role of u.roles; track role) {
+                        <span class="badge badge-info" style="font-size: 0.7rem; padding: 0.15rem 0.4rem;">
+                          {{ role.replace('ROLE_', '') }}
+                        </span>
+                      }
+                    </div>
+                  </td>
+                  <td>{{ formatearFecha(u.createdAt) }}</td>
+                  <td>
+                    <span class="badge" [class]="u.enabled ? 'badge-success' : 'badge-danger'">
+                      {{ u.enabled ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </td>
+                </tr>
+              }
+              @if (usuarios().length === 0 && !loadingUsuarios()) {
+                <tr><td colspan="5" class="text-center text-muted" style="padding: 2rem;">Sin usuarios registrados</td></tr>
               }
             </tbody>
           </table>

@@ -17,7 +17,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.lizardstore.auth.dto.UserResponse;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -74,5 +77,39 @@ public class AuthService {
         loginRequest.setUsername(request.getUsername());
         loginRequest.setPassword(request.getPassword());
         return login(loginRequest);
+    }
+
+    public List<UserResponse> listAllUsers() {
+        return authUserRepository.findAll().stream()
+                .map(this::toUserResponse)
+                .collect(Collectors.toList());
+    }
+
+    public UserResponse getUserById(Long id) {
+        return authUserRepository.findById(id)
+                .map(this::toUserResponse)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
+    public UserResponse changePassword(Long id, String newPassword) {
+        AuthUser user = authUserRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        authUserRepository.save(user);
+        return toUserResponse(user);
+    }
+
+    private UserResponse toUserResponse(AuthUser user) {
+        Set<String> roleNames = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .enabled(user.isEnabled())
+                .createdAt(user.getCreatedAt())
+                .roles(roleNames)
+                .build();
     }
 }

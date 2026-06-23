@@ -3,8 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { Producto, ProductoRequest, ProductosService, Categoria as CatSimple } from '../productos/productos.service';
 import { Categoria, CategoriaRequest, CategoriasService } from '../categorias/categorias.service';
 import { Orden, OrdenesService } from '../ordenes/ordenes.service';
+import { UsuariosService, UserResponse } from '../core/usuarios/usuarios.service';
 
-type SeccionAdmin = 'productos' | 'categorias' | 'ordenes';
+type SeccionAdmin = 'productos' | 'categorias' | 'ordenes' | 'usuarios';
 
 @Component({
   selector: 'app-admin',
@@ -44,15 +45,22 @@ export class AdminPage {
   loadingOrdenes = signal(false);
   errorOrdenes = signal('');
 
+  /* Usuarios */
+  usuarios = signal<UserResponse[]>([]);
+  loadingUsuarios = signal(false);
+  errorUsuarios = signal('');
+
   constructor(
     private productosService: ProductosService,
     private categoriasService: CategoriasService,
     private ordenesService: OrdenesService,
+    private usuariosService: UsuariosService,
   ) {
     this.cargarProductos();
     this.cargarCategoriasSimples();
     this.cargarCategorias();
     this.cargarOrdenes();
+    this.cargarUsuarios();
   }
 
   cambiarSeccion(seccion: SeccionAdmin) {
@@ -302,5 +310,35 @@ export class AdminPage {
 
   formatearPrecio(precio: number): string {
     return `S/ ${precio.toFixed(2)}`;
+  }
+
+  /* ========== USUARIOS ========== */
+  cargarUsuarios() {
+    this.loadingUsuarios.set(true);
+    this.errorUsuarios.set('');
+    this.usuariosService.listar().subscribe({
+      next: u => this.usuarios.set(u),
+      error: () => {
+        this.errorUsuarios.set('Error al cargar usuarios');
+        this.loadingUsuarios.set(false);
+      },
+      complete: () => this.loadingUsuarios.set(false),
+    });
+  }
+
+  formatearFecha(fechaStr?: string): string {
+    if (!fechaStr) return '';
+    try {
+      const date = new Date(fechaStr);
+      return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return fechaStr;
+    }
   }
 }

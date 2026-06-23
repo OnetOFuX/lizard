@@ -30,6 +30,11 @@ export const routes: Routes = [
     loadComponent: () => import('./ordenes/ordenes').then(m => m.OrdenesPage),
   },
   {
+    path: 'perfil',
+    canActivate: [authGuard],
+    loadComponent: () => import('./perfil/perfil').then(m => m.PerfilPage),
+  },
+  {
     path: 'zona-gestion',
     canActivate: [adminGuard],
     loadComponent: () => import('./admin/admin').then(m => m.AdminPage),
