@@ -30,6 +30,7 @@ public class SecurityConfig {
                         .pathMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus").permitAll()
                         .pathMatchers("/auth/login", "/auth/register").permitAll()
                         .pathMatchers(HttpMethod.GET, "/auth/users").hasAuthority("ROLE_ADMIN")
+                        .pathMatchers(HttpMethod.PUT, "/auth/users/**").hasAuthority("ROLE_ADMIN")
                         .pathMatchers("/auth/users/{id}/**", "/auth/users/{id}").authenticated()
                         .pathMatchers("/auth/**").permitAll()
                         .pathMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()

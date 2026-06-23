@@ -32,4 +32,18 @@ export class UsuariosService {
       { newPassword }
     );
   }
+
+  actualizarEstado(id: number, enabled: boolean): Observable<UserResponse> {
+    return this.http.put<UserResponse>(
+      this.api.buildUrl(`/auth/users/${id}/status`),
+      { enabled }
+    );
+  }
+
+  actualizarRoles(id: number, roles: string[]): Observable<UserResponse> {
+    return this.http.put<UserResponse>(
+      this.api.buildUrl(`/auth/users/${id}/roles`),
+      { roles }
+    );
+  }
 }

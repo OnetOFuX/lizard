@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -93,5 +94,51 @@ public class AuthController {
         }
 
         return ResponseEntity.ok(authService.changePassword(id, newPassword));
+    }
+
+    @PutMapping("/users/{id}/status")
+    public ResponseEntity<UserResponse> actualizarEstadoUsuario(
+            @PathVariable Long id,
+            @RequestBody Map<String, Boolean> body,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<String> roles = jwtService.extractRoles(token);
+        if (roles == null || !roles.contains("ROLE_ADMIN")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Boolean enabled = body.get("enabled");
+        if (enabled == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(authService.updateUserStatus(id, enabled));
+    }
+
+    @PutMapping("/users/{id}/roles")
+    public ResponseEntity<UserResponse> actualizarRolesUsuario(
+            @PathVariable Long id,
+            @RequestBody Map<String, List<String>> body,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<String> roles = jwtService.extractRoles(token);
+        if (roles == null || !roles.contains("ROLE_ADMIN")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<String> roleNames = body.get("roles");
+        if (roleNames == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(authService.updateUserRoles(id, new java.util.HashSet<>(roleNames)));
     }
 }

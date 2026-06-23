@@ -99,6 +99,29 @@ public class AuthService {
         return toUserResponse(user);
     }
 
+    public UserResponse updateUserStatus(Long id, boolean enabled) {
+        AuthUser user = authUserRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        user.setEnabled(enabled);
+        authUserRepository.save(user);
+        return toUserResponse(user);
+    }
+
+    public UserResponse updateUserRoles(Long id, Set<String> roleNames) {
+        AuthUser user = authUserRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Set<Role> roles = new java.util.HashSet<>();
+        for (String roleName : roleNames) {
+            Role role = roleRepository.findByName(roleName)
+                    .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + roleName));
+            roles.add(role);
+        }
+        user.setRoles(roles);
+        authUserRepository.save(user);
+        return toUserResponse(user);
+    }
+
     private UserResponse toUserResponse(AuthUser user) {
         Set<String> roleNames = user.getRoles().stream()
                 .map(Role::getName)

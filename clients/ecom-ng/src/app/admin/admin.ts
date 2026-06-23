@@ -341,4 +341,51 @@ export class AdminPage {
       return fechaStr;
     }
   }
+
+  toggleUsuarioEstado(u: UserResponse) {
+    this.errorUsuarios.set('');
+    const nuevoEstado = !u.enabled;
+    this.usuariosService.actualizarEstado(u.id, nuevoEstado).subscribe({
+      next: (res) => {
+        this.usuarios.update(list => list.map(user => user.id === u.id ? res : user));
+      },
+      error: () => {
+        this.errorUsuarios.set('No se pudo cambiar el estado del usuario');
+      }
+    });
+  }
+
+  toggleUsuarioAdmin(u: UserResponse) {
+    this.errorUsuarios.set('');
+    const esAdminActualmente = this.tieneRoleAdmin(u);
+    let nuevosRoles: string[];
+    
+    if (esAdminActualmente) {
+      nuevosRoles = u.roles.filter(r => r !== 'ROLE_ADMIN');
+      if (nuevosRoles.length === 0) {
+        nuevosRoles = ['ROLE_USER'];
+      }
+    } else {
+      nuevosRoles = [...u.roles];
+      if (!nuevosRoles.includes('ROLE_ADMIN')) {
+        nuevosRoles.push('ROLE_ADMIN');
+      }
+      if (!nuevosRoles.includes('ROLE_USER')) {
+        nuevosRoles.push('ROLE_USER');
+      }
+    }
+
+    this.usuariosService.actualizarRoles(u.id, nuevosRoles).subscribe({
+      next: (res) => {
+        this.usuarios.update(list => list.map(user => user.id === u.id ? res : user));
+      },
+      error: () => {
+        this.errorUsuarios.set('No se pudo actualizar los roles del usuario');
+      }
+    });
+  }
+
+  tieneRoleAdmin(u: UserResponse): boolean {
+    return u.roles && u.roles.includes('ROLE_ADMIN');
+  }
 }

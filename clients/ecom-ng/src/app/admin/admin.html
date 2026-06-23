@@ -281,6 +281,7 @@
                 <th>Roles</th>
                 <th>Fecha de Registro</th>
                 <th>Estado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -303,10 +304,18 @@
                       {{ u.enabled ? 'Activo' : 'Inactivo' }}
                     </span>
                   </td>
+                  <td class="table-actions">
+                    <button class="btn btn-ghost btn-sm" [class.text-danger]="u.enabled" type="button" (click)="toggleUsuarioEstado(u)">
+                      {{ u.enabled ? 'Desactivar' : 'Activar' }}
+                    </button>
+                    <button class="btn btn-ghost btn-sm" type="button" (click)="toggleUsuarioAdmin(u)">
+                      {{ tieneRoleAdmin(u) ? 'Quitar Admin' : 'Hacer Admin' }}
+                    </button>
+                  </td>
                 </tr>
               }
               @if (usuarios().length === 0 && !loadingUsuarios()) {
-                <tr><td colspan="5" class="text-center text-muted" style="padding: 2rem;">Sin usuarios registrados</td></tr>
+                <tr><td colspan="6" class="text-center text-muted" style="padding: 2rem;">Sin usuarios registrados</td></tr>
               }
             </tbody>
           </table>
