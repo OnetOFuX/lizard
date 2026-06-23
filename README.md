@@ -173,5 +173,6 @@ En la raíz del proyecto encontrarás el script por lotes automatizado que se en
    ```
 
 ---
-*Lizard Store — Proyecto de Plataformas E-Commerce Universitarias*
+*Lizard Store*
+
 
